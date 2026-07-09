@@ -13,7 +13,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/OndiekiFrank/CorpusGuard",
     packages=find_packages(),
-    python_requires=">=3.9",
+    python_requires=">=3.8",
     install_requires=[
         "faiss-cpu>=1.7.4",
         "sentence-transformers>=2.2.2",

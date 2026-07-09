@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Statistical Retrieval Anomaly Detection (SRAD)
 ================================================

@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Query-Time Prompt Injection (QTPI) Attack
 ==========================================
