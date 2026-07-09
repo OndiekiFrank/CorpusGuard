@@ -1,0 +1,83 @@
+name: CorpusGuard Security Gate
+
+on:
+  workflow_call:
+    inputs:
+      target-url:
+        required: false
+        type: string
+        default: "simulation"
+      fail-on-risk-score:
+        required: false
+        type: number
+        default: 70
+      injection-budget:
+        required: false
+        type: number
+        default: 50
+      attack-vectors:
+        required: false
+        type: string
+        default: "qtpi"
+
+jobs:
+  corpusguard-scan:
+    runs-on: ubuntu-latest
+    name: RAG Security Assessment
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install CorpusGuard
+        run: pip install corpusguard
+
+      - name: Run security scan
+        id: scan
+        run: |
+          corpusguard scan \
+            --target "${{ inputs.target-url }}" \
+            --output ./corpusguard-results/
+          
+          RISK=$(cat ./corpusguard-results/risk_score.txt 2>/dev/null || echo "0")
+          echo "risk_score=$RISK" >> $GITHUB_OUTPUT
+          echo "CorpusGuard Risk Score: $RISK/100"
+
+      - name: Generate PDF report
+        run: |
+          corpusguard report \
+            --format pdf \
+            --output ./corpusguard-results/report.pdf \
+            --risk-score ${{ steps.scan.outputs.risk_score }}
+
+      - name: Upload security report
+        uses: actions/upload-artifact@v4
+        with:
+          name: corpusguard-security-report
+          path: ./corpusguard-results/report.pdf
+          retention-days: 90
+
+      - name: Enforce security gate
+        run: |
+          RISK=${{ steps.scan.outputs.risk_score }}
+          THRESHOLD=${{ inputs.fail-on-risk-score }}
+          
+          echo "Risk Score: $RISK/100"
+          echo "Threshold: $THRESHOLD/100"
+          
+          if [ "$RISK" -ge "$THRESHOLD" ]; then
+            echo "::error::CorpusGuard Security Gate FAILED"
+            echo "::error::Risk score $RISK exceeds threshold $THRESHOLD"
+            echo "::error::Your RAG system is vulnerable to corpus poisoning attacks"
+            echo "::error::Deploy the Memory Hygiene Layer before deploying to production"
+            echo "::error::Run: corpusguard defend --mode full"
+            exit 1
+          else
+            echo "::notice::CorpusGuard Security Gate PASSED"
+            echo "::notice::Risk score $RISK is below threshold $THRESHOLD"
+          fi
