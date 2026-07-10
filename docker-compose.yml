@@ -12,56 +12,35 @@ services:
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - REDIS_URL=redis://redis:6379
-      - DATABASE_URL=postgresql://corpusguard:corpusguard@postgres:5432/corpusguard
     depends_on:
       - redis
-      - postgres
     volumes:
       - ./reports:/app/reports
-      - ./config:/app/config
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
-  dashboard:
-    build:
-      context: .
-      dockerfile: Dockerfile.dashboard
-    container_name: corpusguard-dashboard
+  frontend:
+    image: node:20-alpine
+    container_name: corpusguard-ui
+    working_dir: /app
     ports:
-      - "8501:8501"
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
     environment:
-      - API_URL=http://api:8000
+      - VITE_API_URL=http://api:8000
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     restart: unless-stopped
 
   redis:
     image: redis:7-alpine
     container_name: corpusguard-redis
-    ports:
-      - "6379:6379"
     restart: unless-stopped
 
-  postgres:
-    image: postgres:15-alpine
-    container_name: corpusguard-postgres
-    environment:
-      - POSTGRES_USER=corpusguard
-      - POSTGRES_PASSWORD=corpusguard
-      - POSTGRES_DB=corpusguard
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: corpusguard-prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
-    restart: unless-stopped
-
-volumes:
-  postgres_data:

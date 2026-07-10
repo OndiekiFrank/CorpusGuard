@@ -4,22 +4,23 @@ import MetricCards from './components/MetricCards'
 import ScanPanel from './components/ScanPanel'
 import TabView from './components/TabView'
 import ActivityLog from './components/ActivityLog'
+import { usePDFReport, PDFButton } from './components/PDFReport'
 
 const API = '/api/v1'
 
 function buildOWASP(degradation) {
   return {
-    summary: { passed: 0, failed: 2, not_tested: 5, compliance_percentage: 0, overall_status: 'NON-COMPLIANT' },
+    summary: { passed:0, failed:2, not_tested:5, compliance_percentage:0, overall_status:'NON-COMPLIANT' },
     findings: [
       { id:'LLM01', name:'Prompt Injection', status:'FAILED', severity:'CRITICAL', detail:`QTPI achieved ${degradation.toFixed(1)}% F1 degradation. Zero log anomalies.` },
       { id:'LLM02', name:'Insecure Output Handling', status:'NOT_TESTED', severity:'MEDIUM', detail:'Requires live target.' },
-      { id:'LLM03', name:'Training Data Poisoning', status:'PARTIAL', severity:'HIGH', detail:'Document poisoning tested. No corpus integrity controls.' },
+      { id:'LLM03', name:'Training Data Poisoning', status:'PARTIAL', severity:'HIGH', detail:'No corpus integrity controls detected.' },
       { id:'LLM04', name:'Model Denial of Service', status:'NOT_TESTED', severity:'MEDIUM', detail:'Requires live target.' },
-      { id:'LLM05', name:'Supply Chain Vulnerabilities', status:'FAILED', severity:'HIGH', detail:'Source provenance not verified. Deploy CPT.' },
-      { id:'LLM06', name:'Sensitive Information Disclosure', status:'PARTIAL', severity:'MEDIUM', detail:'FCS not deployed on target.' },
+      { id:'LLM05', name:'Supply Chain Vulnerabilities', status:'FAILED', severity:'HIGH', detail:'Source provenance not verified.' },
+      { id:'LLM06', name:'Sensitive Information Disclosure', status:'PARTIAL', severity:'MEDIUM', detail:'FCS not deployed.' },
       { id:'LLM07', name:'Insecure Plugin Design', status:'NOT_TESTED', severity:'MEDIUM', detail:'Requires agent tool audit.' },
       { id:'LLM08', name:'Excessive Agency', status:'NOT_TESTED', severity:'MEDIUM', detail:'Requires permission audit.' },
-      { id:'LLM09', name:'Overreliance', status:'PARTIAL', severity:'MEDIUM', detail:'FCS anchor corpus validation not active.' },
+      { id:'LLM09', name:'Overreliance', status:'PARTIAL', severity:'MEDIUM', detail:'FCS anchor corpus not active.' },
       { id:'LLM10', name:'Model Theft', status:'NOT_TESTED', severity:'LOW', detail:'Requires query monitoring.' },
     ]
   }
@@ -32,13 +33,12 @@ export default function App() {
   const [progress, setProgress] = useState(0)
   const [progressLabel, setProgressLabel] = useState('')
   const [scanResult, setScanResult] = useState(null)
-  const [logs, setLogs] = useState([
-    { time: '00:00:00', msg: 'CorpusGuard v0.2.0 initialised. API ready at localhost:8000.' }
-  ])
+  const [logs, setLogs] = useState([{ time:'00:00:00', msg:'CorpusGuard v0.2.0 initialised. API ready at localhost:8000.' }])
+  const { download, downloading } = usePDFReport()
 
   const addLog = useCallback((msg) => {
-    const t = new Date().toLocaleTimeString('en', { hour12: false })
-    setLogs(prev => [...prev, { time: t, msg }])
+    const t = new Date().toLocaleTimeString('en', { hour12:false })
+    setLogs(prev => [...prev, { time:t, msg }])
   }, [])
 
   const finalize = useCallback((data, vector, budget) => {
@@ -53,9 +53,9 @@ export default function App() {
 
   const simulateScan = useCallback((vector, budget, targetName) => {
     let attacked, degradation
-    if (budget <= 10) { attacked = 0.735; degradation = 20.0 }
-    else if (budget <= 50) { attacked = 0.017; degradation = 98.2 }
-    else { attacked = 0.012; degradation = 98.7 }
+    if (budget <= 10) { attacked=0.735; degradation=20.0 }
+    else if (budget <= 50) { attacked=0.017; degradation=98.2 }
+    else { attacked=0.012; degradation=98.7 }
     setTimeout(() => {
       setProgress(60); setProgressLabel('Running QTPI attack...')
       setTimeout(() => {
@@ -76,11 +76,11 @@ export default function App() {
       const queued = await res.json()
       addLog(`Scan queued — ID: ${queued.scan_id}`)
       setProgress(40); setProgressLabel('Running adversarial campaign...')
-      for (let i = 0; i < 30; i++) {
+      for (let i=0; i<30; i++) {
         await new Promise(r => setTimeout(r, 700))
         const r2 = await fetch(`${API}/scan/${queued.scan_id}`)
         const data = await r2.json()
-        if (data.status === 'complete') { setProgress(95); setProgressLabel('Processing...'); finalize(data, vector, budget); return }
+        if (data.status==='complete') { setProgress(95); setProgressLabel('Processing...'); finalize(data, vector, budget); return }
       }
       throw new Error('timeout')
     } catch(e) {
@@ -103,9 +103,16 @@ export default function App() {
       <Header mhlActive={mhlActive} />
       <div style={{ maxWidth:1280, width:'100%', margin:'0 auto', flex:1, paddingBottom:40 }}>
         <MetricCards result={scanResult} />
-        <ScanPanel scanning={scanning} defending={defending} mhlActive={mhlActive} progress={progress} progressLabel={progressLabel} onScan={runScan} onDefend={deployMHL} />
+        <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:8 }}>
+          <div style={{ flex:1 }}>
+            <ScanPanel scanning={scanning} defending={defending} mhlActive={mhlActive} progress={progress} progressLabel={progressLabel} onScan={runScan} onDefend={deployMHL} />
+          </div>
+        </div>
+        <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:12, marginTop:-8 }}>
+          <PDFButton scanId={scanResult?.scan_id} targetName={scanResult?.target_name} downloading={downloading} onDownload={download} />
+        </div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 300px', gap:16 }}>
-          <TabView result={scanResult} mhlActive={mhlActive} />
+          <TabView result={scanResult} mhlActive={mhlActive} addLog={addLog} />
           <ActivityLog logs={logs} />
         </div>
       </div>
