@@ -1,0 +1,66 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0f;
+  --bg1: #111118;
+  --bg2: #16161f;
+  --bg3: #1c1c28;
+  --border: rgba(255,255,255,0.07);
+  --border-strong: rgba(255,255,255,0.12);
+  --text: #f0f0f5;
+  --text-secondary: #8888a0;
+  --text-muted: #55556a;
+  --red: #e53e3e;
+  --red-bg: rgba(229,62,62,0.1);
+  --red-border: rgba(229,62,62,0.25);
+  --green: #38a169;
+  --green-bg: rgba(56,161,105,0.1);
+  --green-border: rgba(56,161,105,0.25);
+  --amber: #d69e2e;
+  --amber-bg: rgba(214,158,46,0.1);
+  --amber-border: rgba(214,158,46,0.25);
+  --blue: #4299e1;
+  --blue-bg: rgba(66,153,225,0.1);
+  --blue-border: rgba(66,153,225,0.25);
+  --purple: #805ad5;
+  --purple-bg: rgba(128,90,213,0.1);
+  --radius: 8px;
+  --radius-lg: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg1); }
+::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+
+input, select, textarea {
+  background: var(--bg2);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+input:focus, select:focus { border-color: var(--blue); }
+
+button { font-family: inherit; cursor: pointer; border: none; border-radius: var(--radius); font-size: 13px; font-weight: 500; transition: all 0.15s; }
+button:active { transform: scale(0.98); }
+button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+.fade-in { animation: fadeIn 0.3s ease; }
