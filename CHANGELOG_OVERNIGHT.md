@@ -38,3 +38,6 @@ All changes on branch `overnight-audit`, newest first.
 - **tests/test_cli.py** (new): CLI smoke tests — scan writes risk_score.txt, defend runs, report writes a valid PDF. Suite now **19 passed**.
 - Removed `{corpusguard...` brace-expansion cruft directory (untracked).
 - IMPROVEMENTS.md updated: helm chart / PyPI publish / corpusguard-action moved to roadmap; CI fixes marked done.
+
+### Phase 2 — P7 (light, safe pass)
+- Removed the duplicate `from __future__ import annotations` in `campaign.py`, `owasp.py`, `monitor.py` (redundant line; behaviorally inert, so the running-container P1/P2 proofs remain valid). Deeper P7 (version unification, structured API logging, OWASP summary partial-bucketing) left as backlog in IMPROVEMENTS.md — changing `api/main.py`/`owasp.py` behavior would diverge from the already-proven running container, which this environment cannot rebuild/recreate (daemon denies container kill/stop/rm).
