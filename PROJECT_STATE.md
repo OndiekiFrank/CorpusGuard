@@ -125,3 +125,10 @@ Note: the owasp summary buckets PARTIAL findings (LLM03/06/09) into `not_tested`
 - Removed the `{corpusguard...` brace-expansion cruft directory (untracked).
 
 **P6 status: DONE.** README.md is truthful; no false claims remain that the audit disproved.
+
+### P7 — code quality (light pass)
+Removed redundant duplicate `from __future__` imports (inert). Deeper P7 (version unification, API structured logging, OWASP partial-bucketing) deferred to IMPROVEMENTS.md backlog — changing API-path code cannot be re-proven against a fresh container in this environment (daemon denies container recreate).
+
+---
+
+## Final status: P1–P6 PASS with recorded proof · tests 19/19 · README truthful · docs complete.
