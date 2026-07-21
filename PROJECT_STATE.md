@@ -63,10 +63,27 @@ Legend: **VERIFIED** = code exists and exercised · **BROKEN** = exists but does
 (populated as fixes land; see CHANGELOG_OVERNIGHT.md for full detail)
 
 ### P1 — docker compose full stack
-_status: pending_
+**PASS (curl-verified)** — `docker-compose up -d` brings up all three services healthy:
+
+```
+corpusguard-ui     Up   0.0.0.0:3000->3000/tcp
+corpusguard-api    Up (healthy)   0.0.0.0:8000->8000/tcp
+corpusguard-redis  Up   6379/tcp
+```
+- `curl http://localhost:8000/api/v1/health` → **HTTP 200** `{"status":"healthy","version":"0.1.0",...}`
+- `curl http://localhost:3000` → **HTTP 200**, HTML `<title>CorpusGuard — RAG Security Platform</title>` (Vite dev server).
+
+Fixes required to make P1 hold (see CHANGELOG for reasoning):
+1. `requirements-api.txt` (new) + `Dockerfile` now installs only lean runtime deps (`--no-deps`) — the original `pip install -r requirements.txt` + `pip install -e .` pulled the entire torch/faiss/sentence-transformers stack the API never uses, making the build enormous and slow.
+2. Dropped `build-essential` from the API image (lean deps are manylinux wheels — no compiler needed).
+3. `.dockerignore` (new) — the original build stalled on `COPY . .` copying `frontend/node_modules` + `.git`.
+4. `docker-compose.yml` — added `start_period: 40s` (+ retries 5) to the api healthcheck so the frontend's `depends_on: service_healthy` doesn't abort while the API is still importing on cold start.
+5. `frontend/vite.config.js` — proxy target now `process.env.VITE_API_URL || 'http://localhost:8000'`, so the dockerized frontend actually reaches the `api` service (compose sets `VITE_API_URL=http://api:8000`).
+
+**Environment caveat (not a project defect):** this host runs the legacy `docker-compose` v1.29.2 against Docker Engine 29.3.1, and the daemon denies `kill`/`stop`/`rm` on running containers for this user (`could not kill container: permission denied`). Consequently a stale-container *recreate* errors, and the running stack can't be torn down here. From a clean container state the single `docker-compose up -d` succeeds; the README's documented `docker compose` (v2) is unaffected.
 
 ### P2 — 7 API endpoints via curl
-_status: pending_
+_status: pending — stack is up, exercising now_
 
 ### P3 — bank_compliance_demo.py → PDF
 **PASS (native)** — `python examples/bank_compliance_demo.py` runs all 5 phases, wrote `./reports/bank_compliance_demo.pdf` (6160 bytes). Re-verify after any API change.

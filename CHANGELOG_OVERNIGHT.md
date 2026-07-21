@@ -11,3 +11,12 @@ All changes on branch `overnight-audit`, newest first.
 - Confirmed `helm/` is **MISSING**.
 - Authored `PROJECT_STATE.md` with the full claims table.
 - Reasoning: establish a truthful, committed baseline before touching any code so the branch is resumable at any point.
+
+### Phase 2 — P1: docker compose full stack (PASS)
+- **New `requirements-api.txt`**: lean API runtime deps (fastapi, uvicorn, pydantic, numpy, scipy, reportlab). Reason: the API's simulate path never touches torch/faiss/sentence-transformers, so installing the full `requirements.txt` was pure build bloat.
+- **`Dockerfile`**: install `requirements-api.txt` then `pip install -e . --no-deps` (was: full `requirements.txt` + `pip install -e .`, which re-resolved setup.py's heavy `install_requires`). Dropped `build-essential` (kept only `curl` for the healthcheck) — lean deps ship manylinux wheels.
+- **New `.dockerignore`**: excludes `.git`, `**/node_modules`, `*.pdf`, caches. Reason: `COPY . .` was stalling for minutes copying `frontend/node_modules`.
+- **`docker-compose.yml`**: api healthcheck gains `start_period: 40s` and `retries: 5`. Reason: without a start period the frontend's `depends_on: service_healthy` aborted while the API was still importing numpy/scipy on cold start.
+- **`frontend/vite.config.js`**: proxy target is now `process.env.VITE_API_URL || 'http://localhost:8000'`. Reason: the dockerized frontend proxied `/api` to its own localhost; compose already sets `VITE_API_URL=http://api:8000`, so the browser can now reach the API service. Native dev still defaults to localhost:8000.
+- Proof recorded in PROJECT_STATE.md (health 200 + app HTML 200).
+- Environment caveat documented: legacy docker-compose v1.29.2 + Engine 29 denies container kill/stop/rm for this user; does not affect the compose config or README's `docker compose` v2.

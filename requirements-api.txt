@@ -1,0 +1,10 @@
+# Lean runtime dependencies for the CorpusGuard API container.
+# The API's default (simulate) path only needs these; the heavy ML stack in
+# requirements.txt (torch / faiss-cpu / sentence-transformers) is used only by
+# the non-simulate FCS cross-encoder path, which the API does not trigger.
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+pydantic>=2.7.0
+numpy>=1.24.0
+scipy>=1.10.0
+reportlab>=4.0.0

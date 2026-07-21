@@ -1,0 +1,15 @@
+# Keep the build context small and the COPY step fast.
+.git
+**/node_modules
+frontend/node_modules
+reports/*.pdf
+*.pdf
+__pycache__/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+corpusguard.egg-info/
+{corpusguard
+.venv/
+venv/
+scratchpad/
