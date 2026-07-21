@@ -83,7 +83,20 @@ Fixes required to make P1 hold (see CHANGELOG for reasoning):
 **Environment caveat (not a project defect):** this host runs the legacy `docker-compose` v1.29.2 against Docker Engine 29.3.1, and the daemon denies `kill`/`stop`/`rm` on running containers for this user (`could not kill container: permission denied`). Consequently a stale-container *recreate* errors, and the running stack can't be torn down here. From a clean container state the single `docker-compose up -d` succeeds; the README's documented `docker compose` (v2) is unaffected.
 
 ### P2 — 7 API endpoints via curl
-_status: pending — stack is up, exercising now_
+**PASS (curl-verified against the dockerized API)** — sample scan `e6c967af`:
+
+| # | Method | Endpoint | Result |
+|---|---|---|---|
+| 1 | GET | `/api/v1/health` | 200 `{"status":"healthy","version":"0.1.0",...}` |
+| 2 | POST | `/api/v1/scan` | 200 → `{"scan_id":"e6c967af","status":"queued",...}` |
+| 3 | GET | `/api/v1/scan/{id}` | 200 → `status:complete`, risk 98, F1 0.919→0.017, degradation 98.2%, quarantined 20, full owasp_score embedded |
+| 4 | GET | `/api/v1/owasp/{id}` | 200 → OWASP LLM Top 10 scorecard (NON-COMPLIANT) |
+| 5 | GET | `/api/v1/report/{id}` | 200, `content-type: application/pdf`, `content-disposition: attachment; filename="corpusguard_report_e6c967af.pdf"`, valid `%PDF-` (6114 bytes) |
+| 6 | POST | `/api/v1/defend` | 200 → `{"status":"deployed","expected_detection_rate":"100%",...}` |
+| 7 | GET | `/api/v1/scans` | 200 → `{"total":1,"scans":[{"scan_id":"e6c967af","status":"complete"}]}` |
+|  | GET | `/api/v1/scan/nope123` | 404 (error path) |
+
+Note: the owasp summary buckets PARTIAL findings (LLM03/06/09) into `not_tested` (`passed`/`failed` only) — cosmetic, logged in IMPROVEMENTS. Endpoint behaviour is correct.
 
 ### P3 — bank_compliance_demo.py → PDF
 **PASS (native)** — `python examples/bank_compliance_demo.py` runs all 5 phases, wrote `./reports/bank_compliance_demo.pdf` (6160 bytes). Re-verify after any API change.

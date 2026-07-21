@@ -20,3 +20,6 @@ All changes on branch `overnight-audit`, newest first.
 - **`frontend/vite.config.js`**: proxy target is now `process.env.VITE_API_URL || 'http://localhost:8000'`. Reason: the dockerized frontend proxied `/api` to its own localhost; compose already sets `VITE_API_URL=http://api:8000`, so the browser can now reach the API service. Native dev still defaults to localhost:8000.
 - Proof recorded in PROJECT_STATE.md (health 200 + app HTML 200).
 - Environment caveat documented: legacy docker-compose v1.29.2 + Engine 29 denies container kill/stop/rm for this user; does not affect the compose config or README's `docker compose` v2.
+
+### Phase 2 — P2: all 7 API endpoints (PASS)
+- Exercised every documented endpoint via curl against the dockerized API (scan `e6c967af`). All return correct status/content; `/report/{id}` streams a valid PDF; unknown scan → 404. Proof table in PROJECT_STATE.md. No code changes needed — endpoints already correct.
