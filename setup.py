@@ -27,6 +27,9 @@ setup(
         "rich>=13.0.0",
         "cryptography>=42.0.0",
     ],
+    extras_require={
+        "dev": ["pytest>=7.0", "pytest-cov>=4.0", "httpx>=0.27.0"],
+    },
     entry_points={
         "console_scripts": [
             "corpusguard=corpusguard.cli:app",

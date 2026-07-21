@@ -110,3 +110,18 @@ Note: the owasp summary buckets PARTIAL findings (LLM03/06/09) into `not_tested`
 ### P6 — README truthfulness
 - No `CorpusGuard_README.md` exists — the rename was already applied; `README.md` is the CorpusGuard readme. Corrections applied instead (see below / CHANGELOG).
 - `corpusguard` is **NOT on PyPI** (`pip index versions corpusguard` → no distribution) → `pip install corpusguard` corrected to install-from-source. This also means `security-gate.yml`'s `pip install corpusguard` step cannot work as written.
+
+**README corrections applied:**
+- `pip install corpusguard` → `pip install -e .` (from source), both in the top quickstart and the CLI section (now "install from source").
+- Removed the `helm/corpusguard/ ← Kubernetes Helm chart` line from the architecture tree (directory does not exist) — logged as roadmap in IMPROVEMENTS.md.
+- Architecture "6 endpoints" → "7 endpoints".
+- Test Results "9 passed … Python 3.9, 3.10, 3.11" → "16 passed … CI matrix: Python 3.9/3.10/3.11" (now 19 with CLI tests; README states the honest CI matrix).
+- Added "older Docker: `docker-compose up`" note to the compose command.
+
+**Small truth-making code fixes (make documented CI claims real):**
+- `corpusguard scan` now writes `{output}/risk_score.txt` → `security-gate.yml` can read it. Covered by `tests/test_cli.py`.
+- `setup.py` gained `extras_require={"dev": [...]}` → `ci.yml`'s `pip install -e ".[dev]"` is now valid.
+- `security-gate.yml` installs from source (`pip install -e .`) instead of the unpublished `pip install corpusguard`.
+- Removed the `{corpusguard...` brace-expansion cruft directory (untracked).
+
+**P6 status: DONE.** README.md is truthful; no false claims remain that the audit disproved.

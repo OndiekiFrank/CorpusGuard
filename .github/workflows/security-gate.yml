@@ -34,8 +34,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install CorpusGuard
-        run: pip install corpusguard
+      - name: Install CorpusGuard (from source — not published to PyPI)
+        run: pip install -e .
 
       - name: Run security scan
         id: scan

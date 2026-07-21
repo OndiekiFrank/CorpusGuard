@@ -21,15 +21,15 @@ CorpusGuard automatically red teams any RAG-based AI system for corpus poisoning
 
 ```bash
 # Option 1 — Docker Compose (full stack)
-docker compose up
+docker compose up          # older Docker: docker-compose up
 # Dashboard: http://localhost:3000
 # API:       http://localhost:8000/docs
 
 # Option 2 — Run demo directly
 python examples/bank_compliance_demo.py
 
-# Option 3 — pip CLI
-pip install corpusguard
+# Option 3 — install from source (not yet published to PyPI)
+pip install -e .
 corpusguard scan --target my_rag_config.yaml
 ```
 
@@ -73,10 +73,15 @@ Opens:
 - **FastAPI Swagger UI:** `http://localhost:8000/docs`
 - PDF report auto-saved to `./reports/`
 
-### pip CLI
+### CLI (install from source)
+
+CorpusGuard is not yet published to PyPI — install the CLI from a clone:
 
 ```bash
-pip install corpusguard
+git clone https://github.com/OndiekiFrank/CorpusGuard.git
+cd CorpusGuard
+pip install -e .
+
 corpusguard scan --target config/my_rag.yaml
 corpusguard attack --vector qtpi --budget 50
 corpusguard defend --mode full
@@ -104,7 +109,7 @@ CorpusGuard/
 │       ├── CampaignRunner.jsx   ← 3-phase visual stepper
 │       └── PDFReport.jsx        ← One-click PDF download
 ├── corpusguard/
-│   ├── api/main.py              ← FastAPI REST gateway — 6 endpoints (port 8000)
+│   ├── api/main.py              ← FastAPI REST gateway — 7 endpoints (port 8000)
 │   ├── attacks/
 │   │   ├── qtpi.py              ← Query-Time Prompt Injection attack
 │   │   └── campaign.py          ← Multi-phase attack campaigns
@@ -123,9 +128,8 @@ CorpusGuard/
 │   └── bank_compliance_demo.py  ← Full end-to-end bank assessment demo
 ├── tests/                       ← 9/9 tests passing (Python 3.9, 3.10, 3.11)
 ├── docker-compose.yml           ← Full stack: API + React UI + Redis
-├── Dockerfile                   ← API container
+├── Dockerfile                   ← API container (lean runtime deps)
 ├── Dockerfile.dashboard         ← Streamlit container
-├── helm/corpusguard/            ← Kubernetes Helm chart
 └── .github/workflows/
     ├── ci.yml                   ← GitHub Actions CI/CD
     └── security-gate.yml        ← EU AI Act compliance gate
@@ -206,7 +210,8 @@ Blocks deployment if RAG system scores above 70/100. EU AI Act compliant.
 ## Test Results
 
 ```
-9 passed in 5.37s — Python 3.9, 3.10, 3.11
+16 passed — attack, defense, and API smoke tests
+CI matrix: Python 3.9 / 3.10 / 3.11 (.github/workflows/ci.yml)
 ```
 
 ---

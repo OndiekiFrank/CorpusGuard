@@ -29,3 +29,12 @@ All changes on branch `overnight-audit`, newest first.
 - **P4**: added `tests/test_api.py` (7 FastAPI TestClient smoke tests: health, scan lifecycle, owasp, report=PDF, defend, list, 404 paths). Full suite **16 passed**.
 - **P5**: all 4 README CLI commands run clean via the `corpusguard` entry point (`scan`/`attack`/`defend`/`report`), rc=0; `report` wrote a valid PDF.
 - **P6 precheck**: no `CorpusGuard_README.md` to rename (README.md already is it). Verified `corpusguard` is NOT on PyPI → `pip install corpusguard` is false; will correct to install-from-source.
+
+### Phase 2 — P6: README truthfulness + truth-making fixes
+- **README.md**: `pip install corpusguard` → install-from-source (not on PyPI, verified); removed non-existent `helm/corpusguard/` from architecture; "6 endpoints" → "7"; test results → "16 passed, CI matrix 3.9/3.10/3.11"; added docker-compose v1 note.
+- **corpusguard/cli.py**: `scan` writes `{output}/risk_score.txt` (makes `security-gate.yml` functional). Reason: the gate read a file nothing produced.
+- **setup.py**: added `extras_require={"dev": ["pytest","pytest-cov","httpx"]}`. Reason: `ci.yml` installs `.[dev]`.
+- **.github/workflows/security-gate.yml**: install from source instead of unpublished PyPI package.
+- **tests/test_cli.py** (new): CLI smoke tests — scan writes risk_score.txt, defend runs, report writes a valid PDF. Suite now **19 passed**.
+- Removed `{corpusguard...` brace-expansion cruft directory (untracked).
+- IMPROVEMENTS.md updated: helm chart / PyPI publish / corpusguard-action moved to roadmap; CI fixes marked done.

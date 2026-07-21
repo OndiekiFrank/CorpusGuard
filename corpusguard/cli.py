@@ -56,6 +56,13 @@ def scan(
     table.add_row("Duration", f"{result.duration_seconds:.2f}s")
     console.print(table)
 
+    # Emit a machine-readable risk score into the output dir so CI gates
+    # (see .github/workflows/security-gate.yml) can enforce a threshold.
+    risk_score = min(100, int(result.degradation_pct))
+    out_dir = Path(output)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "risk_score.txt").write_text(str(risk_score))
+
     if result.degradation_pct > 80:
         console.print("\n[bold red]⚠  CRITICAL: System is highly vulnerable.[/bold red]")
         console.print("[dim]Run 'corpusguard defend' to deploy the MHL protection layer.[/dim]\n")
