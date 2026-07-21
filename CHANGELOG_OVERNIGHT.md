@@ -23,3 +23,9 @@ All changes on branch `overnight-audit`, newest first.
 
 ### Phase 2 — P2: all 7 API endpoints (PASS)
 - Exercised every documented endpoint via curl against the dockerized API (scan `e6c967af`). All return correct status/content; `/report/{id}` streams a valid PDF; unknown scan → 404. Proof table in PROJECT_STATE.md. No code changes needed — endpoints already correct.
+
+### Phase 2 — P3/P4/P5 (PASS)
+- **P3**: re-ran `python examples/bank_compliance_demo.py` → all 5 phases, wrote `reports/bank_compliance_demo.pdf` (6161 bytes). rc=0.
+- **P4**: added `tests/test_api.py` (7 FastAPI TestClient smoke tests: health, scan lifecycle, owasp, report=PDF, defend, list, 404 paths). Full suite **16 passed**.
+- **P5**: all 4 README CLI commands run clean via the `corpusguard` entry point (`scan`/`attack`/`defend`/`report`), rc=0; `report` wrote a valid PDF.
+- **P6 precheck**: no `CorpusGuard_README.md` to rename (README.md already is it). Verified `corpusguard` is NOT on PyPI → `pip install corpusguard` is false; will correct to install-from-source.

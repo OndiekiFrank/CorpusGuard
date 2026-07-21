@@ -102,7 +102,11 @@ Note: the owasp summary buckets PARTIAL findings (LLM03/06/09) into `not_tested`
 **PASS (native)** — `python examples/bank_compliance_demo.py` runs all 5 phases, wrote `./reports/bank_compliance_demo.pdf` (6160 bytes). Re-verify after any API change.
 
 ### P4 — pytest
-**PASS** — 9/9 on Python 3.8.5.
+**PASS** — **16/16** on Python 3.8.5 (9 original + 7 new API smoke tests in `tests/test_api.py` covering all endpoints + 404 paths).
 
 ### P5 — CLI commands
-**PASS (native)** — `scan`, `attack`, `defend`, `report` all run without traceback; `report` wrote a valid PDF.
+**PASS** — via the installed `corpusguard` entry point: `scan --target ...`, `attack --vector qtpi --budget 50`, `defend --mode full`, `report --format pdf --output ...` all rc=0, no traceback; `report` wrote a valid PDF.
+
+### P6 — README truthfulness
+- No `CorpusGuard_README.md` exists — the rename was already applied; `README.md` is the CorpusGuard readme. Corrections applied instead (see below / CHANGELOG).
+- `corpusguard` is **NOT on PyPI** (`pip index versions corpusguard` → no distribution) → `pip install corpusguard` corrected to install-from-source. This also means `security-gate.yml`'s `pip install corpusguard` step cannot work as written.
