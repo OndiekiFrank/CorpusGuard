@@ -102,3 +102,8 @@ Chronological record of every change made on branch `polish-pass` and the reason
 ### 3.2 One-command reset
 - `scripts/demo-reset.sh` (executable, `bash -n` clean) tears down, rebuilds, relaunches, waits for the API healthcheck, and smoke-tests both ports.
 - `Makefile` with `reset`, `up`, `down`, `demo`, `test`, `build`, `logs` targets (autodetects `docker compose` vs `docker-compose`).
+
+## Phase 4 — Fresh-clone acceptance test
+
+### Correctness fix surfaced by the fresh clone
+- `setup.py` declared `python_requires>=3.8` while also requiring `reportlab>=4.0.0`. reportlab 4.x calls `hashlib.md5(usedforsecurity=False)`, which is invalid on Python 3.8 → a fresh `pip install -e .` on 3.8 crashes all PDF generation. The classifiers, README, CI matrix, and Docker image already target 3.9–3.11. Fixed `python_requires` to `>=3.9` so the declared floor matches reality (Python 3.8 is EOL). This is exactly the "working dir hid it" class of bug the acceptance test is meant to catch — the local env had an old reportlab 3.6.13 that masked it.
