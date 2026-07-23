@@ -19,6 +19,8 @@ CorpusGuard automatically red teams any RAG-based AI system for corpus poisoning
 
 **One command. Full security assessment. CISO-ready PDF report.**
 
+📄 **See the output without running anything:** [`docs/sample_report.pdf`](docs/sample_report.pdf) — a representative CISO assessment report.
+
 ```bash
 # Option 1 — Docker Compose (full stack)
 docker compose up          # older Docker: docker-compose up

@@ -74,7 +74,13 @@ Per the working rules this discrepancy is recorded for review rather than resolv
 
 ## PHASE 2 — Repo hygiene
 
-_(pending)_
+- **2.1 compose** — DONE. Removed `version:` key; healthcheck interval 10s→30s; anonymous `/app/node_modules` volume. `docker compose config` parses; API image rebuilds.
+- **2.2 npm audit** — DEFERRED (documented). Only fix is a breaking vite 5→7/8 major upgrade; all advisories are dev-server-only (high one is Windows-only). recharts v3 also deferred. See IMPROVEMENTS.md.
+- **2.3 pin deps** — DONE. `requirements-api.txt` pinned to container-verified versions (rebuild OK); `requirements.txt` pinned + **added missing scipy** (srad/monitor need it). Clean-venv resolution of the full `requirements.txt` not re-run (heavy torch pull).
+- **2.4 sample report** — DONE. `docs/sample_report.pdf` committed (canonical CISO report, paper figures), linked from README.
+- **2.5 SECURITY.md + CITATION.cff** — DONE. Responsible-use + vuln-reporting policy written; CFF validates as YAML and cites both software and paper.
+- **2.6 badges** — DONE. All 6 badge images resolve 200; link targets resolve 200 **except SSRN (403)**. The SSRN 403 is its anti-bot wall — 403 to curl even with a browser UA — **not** a 404, so the link is kept. **HUMAN CHECK NEEDED:** open https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6734225 in a real browser to confirm abstract 6734225 is live and public. CI badge is live (repo is public, `ci.yml` present).
+- **2.7 secret scan** — DONE, **CLEAN**. No `.env`/`*.pem`/`*.key`/credential files; no `sk-…`/`AKIA…`/`ghp_…`/private-key/Slack/Bearer patterns in tracked files; no hardcoded password/token/api_key assignments; no absolute local paths (`/home/…`, `/Users/…`) in tracked files. `OPENAI_API_KEY` appears only as a `${OPENAI_API_KEY:-}` empty-default passthrough in compose. (History contains old `node_modules/` files from before it was untracked — repo bloat, not secrets.)
 
 ## PHASE 3 — Demo readiness
 

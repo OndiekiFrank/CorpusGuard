@@ -70,3 +70,16 @@ Chronological record of every change made on branch `polish-pass` and the reason
 
 ### Environment blocker
 - Pre-existing containers could not be stopped (daemon `permission denied`, no sudo). Recorded under IMPROVEMENTS.md BLOCKED. New API image built but not swapped in; functional coverage via pytest.
+
+### 2.4 Sample report
+- Committed `docs/sample_report.pdf` (canonical CISO report, paper figures) and linked it near the top of the README.
+
+### 2.5 SECURITY.md + CITATION.cff
+- `SECURITY.md`: responsible-use policy for the shipped attack engine + private vulnerability-reporting process.
+- `CITATION.cff`: cites the software and the SSRN paper; validates as YAML.
+
+### 2.6 Badges
+- Verified all 6 badge images return 200 and all link targets return 200 except SSRN, which returns 403 to any automated client (its anti-bot wall) — kept as-is; flagged for a human browser check in POLISH_STATE.md.
+
+### 2.7 Secret scan — CLEAN
+- No secret/key/`.env` files, no credential patterns, no hardcoded secrets, no absolute local paths in tracked files. Full result in POLISH_STATE.md §Phase 2.7.

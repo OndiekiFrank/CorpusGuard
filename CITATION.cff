@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "If you use CorpusGuard in your research, please cite both the software and the paper it implements."
+title: "CorpusGuard: RAG Security Testing and Defense Framework"
+abstract: "A framework for red-teaming RAG-based AI systems against corpus poisoning (Query-Time Prompt Injection) and deploying the Memory Hygiene Layer defense. Reference implementation of SSRN 6734225."
+type: software
+version: 0.1.0
+license: MIT
+repository-code: "https://github.com/OndiekiFrank/CorpusGuard"
+url: "https://github.com/OndiekiFrank/CorpusGuard"
+keywords:
+  - ai-security
+  - rag
+  - llm
+  - adversarial-machine-learning
+  - prompt-injection
+  - red-team
+authors:
+  - family-names: "Ondieki Ombachi"
+    given-names: "Frankline"
+    email: ondiekifrank021@gmail.com
+    orcid: "https://orcid.org/0009-0008-3483-0025"
+preferred-citation:
+  type: article
+  title: "Poisoning the Compliance Mind: Adversarial Memory Injection Attacks on RAG-Based AML Agents"
+  year: 2026
+  url: "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6734225"
+  notes: "Under peer review at ACM ICAIF 2026."
+  authors:
+    - family-names: "Ondieki Ombachi"
+      given-names: "Frankline"
+      orcid: "https://orcid.org/0009-0008-3483-0025"
