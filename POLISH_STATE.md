@@ -90,6 +90,29 @@ Per the working rules this discrepancy is recorded for review rather than resolv
 - **3.4 No runtime external deps** — VERIFIED. CDP network capture during load+scan+deploy: 25 requests, **0 external**. System fonts, data-URI favicon, bundled JS.
 - **3.5 Legibility** — DONE. Critical grid value readouts bumped 11→14px bold; headline KPIs already 28px; verified no layout breakage via before/after screenshots.
 
-## PHASE 4 — Fresh-clone verification
+## PHASE 4 — Fresh-clone verification — GREEN
 
-_(pending)_
+Cloned `polish-pass` fresh (`git clone` of the local repo) and ran the full acceptance test.
+
+**Environment deviations (forced, documented):** this sandbox (a) has locked pre-existing containers holding host ports 8000/3000 that cannot be stopped (daemon `permission denied`, no sudo), and (b) its Docker daemon cannot bind-mount host paths under `/tmp` (the frontend dev-server mount comes up empty). So the acceptance stack ran from a `/home` clone (`/home/the-artist/cg-accept`) on remapped ports **8002/3002** with distinct container names, via a small `docker-compose.override.yml`. On a clean host you clone into `/tmp` and use 8000/3000 with no override.
+
+### Results
+
+| Criterion | Result |
+|---|---|
+| `docker compose up --build` reaches healthy | ✅ `cg3-api` Healthy (fresh build, Python 3.11, pinned `requirements-api.txt`) |
+| `curl :8002/api/v1/health` (→ :8000 on clean host) | ✅ `200` — `{"status":"healthy","version":"0.1.0",...}` |
+| `:3002` UI (→ :3000 on clean host) | ✅ `200` (ready ~12s after npm install) |
+| `python examples/bank_compliance_demo.py` → PDF | ✅ `reports/bank_compliance_demo.pdf` — PDF 1.4, 2 pages |
+| `pytest` | ✅ **24 passed** |
+
+Validated on two supported Pythons plus the host default:
+- **Docker image — Python 3.11, reportlab 5.0.0:** stack healthy, both endpoints 200.
+- **Python 3.12, latest reportlab 5.0.0 (the normal stranger path):** `24 passed`; demo → 2-page PDF.
+- **Python 3.8, pinned reportlab 3.6.13:** `24 passed`; demo → PDF (shows the pin keeps even EOL 3.8 working).
+
+### P1 bug found and fixed (working dir had hidden it)
+`setup.py` allowed `python_requires>=3.8` while requiring `reportlab>=4.0.0`; reportlab 4.x calls `md5(usedforsecurity=False)` which raises `TypeError` on Python 3.8, crashing every PDF path on a fresh `pip install -e .`. The working tree masked it with an ambient reportlab 3.6.13. Fixed the floor to `>=3.9` (matches the classifiers, README, CI matrix, and Docker image). Re-verified green.
+
+### Leftover containers (environment)
+The `cg-fresh-*`, `cg2-*`, and `cg3-*` containers created during this test cannot be removed here (same daemon `permission denied` restriction). On the owner's machine `docker compose -p cg3 down` (etc.) or a normal `docker compose down` cleans them up.
