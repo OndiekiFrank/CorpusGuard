@@ -125,10 +125,13 @@ def main():
 
     stats = mhl.stats
     console.print(
-        f"\n[green]✓[/green] MHL Performance: "
-        f"[bold]{quarantined/20*100:.0f}%[/bold] detection rate | "
-        f"[bold]0%[/bold] false quarantine | "
-        f"[bold]{avg_latency:.1f}ms[/bold] avg latency\n"
+        f"\n[green]✓[/green] MHL Performance (measured this run): "
+        f"[bold]{quarantined/20*100:.0f}%[/bold] detection on 20 adversarial docs | "
+        f"[bold]{avg_latency:.2f}ms[/bold] avg latency (stub cross-encoder)"
+    )
+    console.print(
+        "[dim]Published benchmark (SSRN 6734225): 100% detection · 0% false "
+        "quarantine · 22.6ms p99 latency on CPU with the full cross-encoder.[/dim]\n"
     )
 
     # PHASE 3: OWASP SCORECARD
@@ -218,10 +221,10 @@ def main():
     console.print(Panel(
         f"[bold]CorpusGuard Assessment Complete[/bold]\n\n"
         f"  Risk Score:          [bold red]{report.overall_risk_score}/100 — CRITICAL[/bold red]\n"
-        f"  Attack Degradation:  [bold red]{report.worst_degradation_pct:.1f}%[/bold red]\n"
+        f"  Attack Degradation:  [bold red]{report.worst_degradation_pct:.1f}%[/bold red] (this run)\n"
         f"  Log Anomalies:       [bold green]0 (Zero)[/bold green]\n"
-        f"  MHL Detection Rate:  [bold green]100%[/bold green]\n"
-        f"  False Quarantine:    [bold green]0%[/bold green]\n"
+        f"  MHL Detection Rate:  [bold green]100%[/bold green] [dim](published, SSRN 6734225)[/dim]\n"
+        f"  False Quarantine:    [bold green]0%[/bold green] [dim](published, SSRN 6734225)[/dim]\n"
         f"  OWASP Compliance:    [bold red]{summary['compliance_percentage']}%[/bold red]\n"
         f"  PDF Report:          [bold]{pdf_path}[/bold]\n\n"
         f"[dim]{report.recommendation}[/dim]",

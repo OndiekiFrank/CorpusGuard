@@ -95,7 +95,7 @@ export default function App() {
     await new Promise(r => setTimeout(r, 1400))
     setMhlActive(true); setDefending(false)
     addLog('MHL deployed — CPT · FCS (θ=0.65) · SRAD (500-query window)')
-    addLog('Detection: 100% · False quarantine: 0% · Latency p99: 22.6ms')
+    addLog('Published benchmark (SSRN 6734225) — Detection: 100% · False quarantine: 0% · Latency p99: 22.6ms')
   }, [addLog])
 
   return (

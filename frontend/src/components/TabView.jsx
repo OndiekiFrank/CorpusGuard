@@ -95,9 +95,12 @@ function OWASPTab({ result }) {
 function MHLTab({ mhlActive }) {
   const modules = [
     { name:'CPT — Cryptographic Provenance Tracking', desc:'SHA-256 hashing + source trust scoring', metric:'100% detection · 0% false quarantine' },
-    { name:'FCS — Factual Consistency Scoring', desc:'Cross-encoder scoring vs anchor corpus', metric:'22.6ms p99 on CPU' },
+    { name:'FCS — Factual Consistency Scoring', desc:'Cross-encoder scoring vs anchor corpus', metric:'22.6ms p99 latency' },
     { name:'SRAD — Statistical Retrieval Anomaly Detection', desc:'KS-test on 500-query sliding window', metric:'Zero-config corpus monitoring' },
   ]
+  // Provenance note: the detection/false-quarantine/latency figures below are
+  // the published benchmarks from SSRN 6734225, not values measured in this
+  // browser session. See ProvenanceNote.
   return (
     <div className="fade-in">
       {!mhlActive && <div style={{ background:'var(--amber-bg)', border:'1px solid var(--amber-border)', borderRadius:8, padding:'10px 14px', fontSize:12, color:'var(--amber)', marginBottom:14 }}>⚠ MHL not deployed — click Deploy MHL above.</div>}
@@ -112,15 +115,28 @@ function MHLTab({ mhlActive }) {
         </div>
       ))}
       {mhlActive && (
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginTop:14 }}>
-          {[['Detection rate','100%','green'],['False quarantine','0%','green'],['Latency p99','22.6ms','blue'],['Retraining needed','None','green']].map(([k,v,c])=>(
-            <div key={k} style={{ background:'var(--bg2)', borderRadius:8, padding:'9px 12px', display:'flex', justifyContent:'space-between' }}>
-              <span style={{ fontSize:11, color:'var(--text-secondary)' }}>{k}</span>
-              <span style={{ fontSize:11, fontWeight:500, color:`var(--${c})` }}>{v}</span>
-            </div>
-          ))}
-        </div>
+        <>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginTop:14 }}>
+            {[['Detection rate','100%','green'],['False quarantine','0%','green'],['Latency p99','22.6ms','blue'],['Retraining needed','None','green']].map(([k,v,c])=>(
+              <div key={k} style={{ background:'var(--bg2)', borderRadius:8, padding:'9px 12px', display:'flex', justifyContent:'space-between' }}>
+                <span style={{ fontSize:11, color:'var(--text-secondary)' }}>{k}</span>
+                <span style={{ fontSize:11, fontWeight:500, color:`var(--${c})` }}>{v}</span>
+              </div>
+            ))}
+          </div>
+          <ProvenanceNote>Detection, false-quarantine, and latency figures are published benchmarks from SSRN 6734225 — not measured in this session.</ProvenanceNote>
+        </>
       )}
+    </div>
+  )
+}
+
+// Small, consistent marker for figures sourced from the paper rather than
+// computed at runtime. Used wherever a static SSRN 6734225 constant is shown.
+function ProvenanceNote({ children }) {
+  return (
+    <div style={{ marginTop:12, fontSize:10, color:'var(--text-muted)', fontStyle:'italic', lineHeight:1.5 }}>
+      📄 {children}
     </div>
   )
 }

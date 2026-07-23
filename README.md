@@ -126,7 +126,7 @@ CorpusGuard/
 │       └── report_generator.py  ← CISO-ready PDF report generator
 ├── examples/
 │   └── bank_compliance_demo.py  ← Full end-to-end bank assessment demo
-├── tests/                       ← 9/9 tests passing (Python 3.9, 3.10, 3.11)
+├── tests/                       ← pytest suite passing (Python 3.9, 3.10, 3.11)
 ├── docker-compose.yml           ← Full stack: API + React UI + Redis
 ├── Dockerfile                   ← API container (lean runtime deps)
 ├── Dockerfile.dashboard         ← Streamlit container
@@ -210,7 +210,7 @@ Blocks deployment if RAG system scores above 70/100. EU AI Act compliant.
 ## Test Results
 
 ```
-16 passed — attack, defense, and API smoke tests
+pytest — attack, defense, API, CLI, and version-consistency tests
 CI matrix: Python 3.9 / 3.10 / 3.11 (.github/workflows/ci.yml)
 ```
 

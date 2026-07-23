@@ -20,7 +20,7 @@ export default function MetricCards({ result }) {
       <Metric icon="⚠️" label="Risk score" value={result ? `${result.risk_score}/100` : null} valueColor={riskColor} sub={result ? (result.risk_score >= 70 ? 'Critical — immediate action required' : 'Moderate risk') : 'Run a scan to assess'} />
       <Metric icon="🧠" label="Baseline F1" value="0.919" sub="AML agent — before attack" />
       <Metric icon="📉" label="Attacked F1" value={result ? result.attacked_f1.toFixed(3) : null} valueColor={result ? 'var(--red)' : undefined} sub={result ? `${result.degradation_pct.toFixed(1)}% degradation` : 'Run scan to test'} />
-      <Metric icon="🛡️" label="Quarantined" value={result ? `${result.documents_quarantined}/20` : null} valueColor={result ? 'var(--green)' : undefined} sub={result ? '100% detection rate' : 'MHL not yet deployed'} />
+      <Metric icon="🛡️" label="Quarantined" value={result ? `${result.documents_quarantined}/20` : null} valueColor={result ? 'var(--green)' : undefined} sub={result ? `${Math.round((result.documents_quarantined / 20) * 100)}% detection (measured)` : 'MHL not yet deployed'} />
     </div>
   )
 }

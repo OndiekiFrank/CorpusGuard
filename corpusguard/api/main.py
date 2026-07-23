@@ -102,7 +102,10 @@ def get_scan(scan_id: str):
 @app.post("/api/v1/defend")
 def deploy_defense(request: DefendRequest):
     MemoryHygieneLayer(MHLConfig(cpt_enabled=request.cpt_enabled, fcs_enabled=request.fcs_enabled, fcs_threshold=request.fcs_threshold, srad_enabled=request.srad_enabled))
-    return {"status": "deployed", "expected_detection_rate": "100%", "expected_false_quarantine": "0%", "expected_latency_p99_ms": 22.6}
+    # The expected_* figures are the published benchmarks from SSRN 6734225,
+    # not measured on this deployment. The key prefix and `metrics_source`
+    # make that provenance explicit to API consumers.
+    return {"status": "deployed", "expected_detection_rate": "100%", "expected_false_quarantine": "0%", "expected_latency_p99_ms": 22.6, "metrics_source": "SSRN 6734225 (published benchmark)"}
 
 @app.get("/api/v1/report/{scan_id}")
 def get_report(scan_id: str):

@@ -135,7 +135,7 @@ def generate_pdf_report(
         ["Risk Score", f"{data.risk_score}/100 — {risk_label}"],
         ["Vulnerabilities Found", str(data.vulnerabilities_found)],
         ["Attack Vectors Tested", "3 (QTPI, Document Poisoning, Rank Manipulation)"],
-        ["MHL Detection Rate", "100% (0% false quarantine)"],
+        ["MHL Detection Rate", "100% (0% false quarantine) — published, SSRN 6734225"],
         ["Regulatory Frameworks Affected", "NIST AI RMF, OWASP LLM Top 10, FATF 2025"],
     ]
     summary_table = Table(summary_data, colWidths=[6 * cm, 10 * cm])
@@ -170,18 +170,19 @@ def generate_pdf_report(
     story.append(Spacer(1, 0.3 * cm))
 
     ar = data.attack_results
+    qtpi_degradation = str(ar.get("degradation", "98.4%"))
     attack_data = [
         ["Attack Vector", "β (docs)", "Baseline F1", "Attacked F1", "Degradation", "Log Anomalies"],
         ["QTPI (Prompt Injection)",
          str(ar.get("qtpi_budget", 50)),
          str(ar.get("baseline_f1", "0.919")),
          str(ar.get("attacked_f1", "0.014")),
-         str(ar.get("degradation", "98.4%")),
+         qtpi_degradation,
          "0"],
-        ["Document Poisoning",
+        ["Document Poisoning †",
          str(ar.get("dp_budget", 280)),
          "0.919", "0.924", "+0.5%", "0"],
-        ["Rank Manipulation",
+        ["Rank Manipulation †",
          str(ar.get("rrm_budget", 280)),
          "0.919", "0.943", "+2.6%", "0"],
     ]
@@ -199,9 +200,12 @@ def generate_pdf_report(
     ]))
     story.append(attack_table)
     story.append(Paragraph(
-        "QTPI achieves 98.4% F1 degradation at the minimum tested injection budget "
-        "of 50 documents. The agent becomes operationally equivalent to random guessing "
-        "while producing no anomalous log signatures.",
+        f"QTPI achieves {qtpi_degradation} F1 degradation at the tested injection budget. "
+        "The agent becomes operationally equivalent to random guessing while producing "
+        "no anomalous log signatures. "
+        "† Document Poisoning and Rank Manipulation rows are published reference values "
+        "from SSRN 6734225 (this assessment ran the QTPI vector); the paper reports QTPI "
+        "collapsing F1 from 0.919 to 0.014 (98.4% degradation) at β=50.",
         caption_style,
     ))
 

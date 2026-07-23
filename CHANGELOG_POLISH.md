@@ -36,3 +36,18 @@ Chronological record of every change made on branch `polish-pass` and the reason
 - Root cause of the stray "0.75": the F1 degradation curve's `<YAxis domain={[0,1]}>` let Recharts auto-generate ticks (0, 0.25, 0.5, **0.75**, 1). Recharts also appended an off-screen text-measurement `<span>` to `document.body` carrying the last-measured string ("0.75"). Diagnosed by driving the live dashboard over the Chrome DevTools Protocol and locating both the SVG `<tspan>` and the body `<span>`.
 - Fix: set explicit `ticks={[0,0.5,1]}` on the F1 YAxis. No bare "0.75" renders, and the axis is cleaner for projection (helps Phase 3.5). Verified via CDP that zero `0.75` elements remain after a scan.
 - The leading "00:00:00" activity-log entry was a hardcoded `time:'00:00:00'` in the initial `useState` log. Now initialised with the real `new Date().toLocaleTimeString(...)` (fixed alongside the version string in the same line).
+
+### 1.2 Measured vs paper-cited figures
+- Established one convention: runtime-computed numbers are shown as measured; static SSRN 6734225 figures carry a visible "published"/"SSRN 6734225" label.
+- `TabView.jsx`: added a reusable `ProvenanceNote` and attached it under the MHL 100%/0%/22.6ms grid; changed "22.6ms p99 on CPU" → "22.6ms p99 latency".
+- `MetricCards.jsx`: "Quarantined" sub is now the measured detection rate (`round(q/20*100)% detection (measured)`), not a hardcoded "100%".
+- `App.jsx`: MHL-deploy log line prefixed "Published benchmark (SSRN 6734225)".
+- `api/main.py` `/defend`: added `metrics_source` provenance field.
+- `report_generator.py`: MHL Detection Rate row labelled "published, SSRN 6734225"; QTPI caption now interpolates the actual scanned degradation (98.2% for a live run) instead of a hardcoded 98.4%; DP/RRM rows marked `†` with a footnote citing the paper's 0.014/98.4%.
+- `bank_compliance_demo.py`: MHL line separated into measured-this-run (stub ≈0.1ms) vs published benchmark (22.6ms p99); final summary tags detection/false-quarantine as published.
+- Verified by regenerating PDFs: live-scan PDF caption reads "98.2%"; `report` template reads "98.4%"; both cite the paper value.
+
+### 1.6 Figure reconciliation vs SSRN 6734225
+- Built a full figure inventory across CLI / dashboard / PDF / demo / README (recorded in POLISH_STATE.md §1.6).
+- **DISCREPANCY-1 (P1, recorded for human review, NOT silently changed):** the simulation yields F1 0.017 / 98.2% at β=50 while the paper/README state 0.014 / 98.4%. Root cause and three resolution options documented in POLISH_STATE.md.
+- Fixed an internal README inconsistency (claimed both "9/9" and "16" tests passing) — reworded to a version-independent truthful statement.
