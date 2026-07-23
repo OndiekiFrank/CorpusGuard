@@ -140,6 +140,7 @@ class OWASPScorecard:
         findings = []
         passed = 0
         failed = 0
+        partial = 0
         not_tested = 0
 
         for item in OWASP_LLM_TOP10:
@@ -149,6 +150,8 @@ class OWASPScorecard:
                 failed += 1
             elif finding["status"] == "PASSED":
                 passed += 1
+            elif finding["status"] == "PARTIAL":
+                partial += 1
             else:
                 not_tested += 1
 
@@ -161,11 +164,15 @@ class OWASPScorecard:
                 "total": len(OWASP_LLM_TOP10),
                 "passed": passed,
                 "failed": failed,
+                # PARTIAL findings are reported in their own bucket. Previously
+                # they were folded into not_tested, so a scorecard with three
+                # PARTIAL results misleadingly read "8 not tested".
+                "partial": partial,
                 "not_tested": not_tested,
                 "compliance_percentage": compliance_pct,
                 "overall_status": (
                     "NON-COMPLIANT" if failed > 0
-                    else "PARTIALLY_COMPLIANT" if not_tested > 0
+                    else "PARTIALLY_COMPLIANT" if (partial > 0 or not_tested > 0)
                     else "COMPLIANT"
                 ),
             },

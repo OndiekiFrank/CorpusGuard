@@ -165,6 +165,7 @@ def main():
         f"\n[bold]OWASP Compliance:[/bold] "
         f"{summary['passed']}/10 passed | "
         f"[red]{summary['failed']} failed[/red] | "
+        f"[yellow]{summary['partial']} partial[/yellow] | "
         f"{summary['not_tested']} not tested | "
         f"[bold]{summary['compliance_percentage']}% compliant[/bold]"
     )

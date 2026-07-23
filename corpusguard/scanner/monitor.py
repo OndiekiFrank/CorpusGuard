@@ -101,6 +101,11 @@ class CorpusGuardMonitor:
     def stop(self):
         """Stop the monitoring agent gracefully."""
         self._running = False
+        # Finalise uptime from the real start time. Previously this printed
+        # self.stats.uptime_seconds, which was only ever updated inside
+        # get_stats(), so a stop() without a prior get_stats() reported "0s".
+        if self._start_time:
+            self.stats.uptime_seconds = time.time() - self._start_time
         self.stats.status = "stopped"
         print(f"[CorpusGuard Monitor] Stopped after {self.stats.uptime_seconds:.0f}s")
 

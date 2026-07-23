@@ -50,6 +50,19 @@ def test_owasp_scorecard():
     assert any(f["id"] == "LLM01" and f["status"] == "FAILED" for f in card["findings"])
 
 
+def test_owasp_partial_bucket_is_reported_separately():
+    """PARTIAL findings must be their own bucket, not folded into not_tested."""
+    sid = _complete_scan_id()
+    card = client.get(f"/api/v1/owasp/{sid}").json()["owasp_llm_top10"]
+    summary = card["summary"]
+    partial_findings = [f for f in card["findings"] if f["status"] == "PARTIAL"]
+    assert "partial" in summary
+    assert summary["partial"] == len(partial_findings) > 0
+    # Every finding lands in exactly one bucket; the four sum to the total.
+    assert (summary["passed"] + summary["failed"]
+            + summary["partial"] + summary["not_tested"]) == summary["total"]
+
+
 def test_report_is_pdf():
     sid = _complete_scan_id()
     r = client.get(f"/api/v1/report/{sid}")

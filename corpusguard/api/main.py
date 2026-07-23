@@ -1,6 +1,7 @@
 from __future__ import annotations
 """CorpusGuard FastAPI Gateway"""
 
+import logging
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -16,6 +17,8 @@ from corpusguard.attacks.qtpi import QTPIAttack, QTPIConfig
 from corpusguard.defense.mhl import MemoryHygieneLayer, MHLConfig
 from corpusguard.dashboard.report_generator import ReportData, generate_pdf_report
 from corpusguard.scanner.owasp import OWASPScorecard
+
+logger = logging.getLogger("corpusguard.api")
 
 app = FastAPI(title="CorpusGuard API", description="RAG security testing and defense. SSRN 6734225.", version=__version__)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -71,8 +74,13 @@ def _run_scan(scan_id: str, request: ScanRequest):
         _reports[scan_id] = report_path
         _scans[scan_id].update({"status": "complete", "risk_score": risk_score, "baseline_f1": result.baseline_f1, "attacked_f1": result.attacked_f1, "degradation_pct": result.degradation_pct, "log_anomalies": result.log_anomalies, "documents_quarantined": quarantined, "owasp_score": owasp_result, "message": "CRITICAL" if risk_score >= 70 else "Complete."})
     except Exception as e:
+        # Preserve the full traceback in the server logs for diagnosis while
+        # returning a concise, typed error to the client. Previously the
+        # exception was swallowed into the status message with no traceback.
+        logger.exception("Scan %s failed during _run_scan", scan_id)
         _scans[scan_id]["status"] = "error"
-        _scans[scan_id]["message"] = str(e)
+        _scans[scan_id]["error_type"] = type(e).__name__
+        _scans[scan_id]["message"] = f"Scan failed ({type(e).__name__}): {e}"
 
 @app.get("/api/v1/health")
 def health():
