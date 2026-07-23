@@ -51,3 +51,22 @@ Chronological record of every change made on branch `polish-pass` and the reason
 - Built a full figure inventory across CLI / dashboard / PDF / demo / README (recorded in POLISH_STATE.md §1.6).
 - **DISCREPANCY-1 (P1, recorded for human review, NOT silently changed):** the simulation yields F1 0.017 / 98.2% at β=50 while the paper/README state 0.014 / 98.4%. Root cause and three resolution options documented in POLISH_STATE.md.
 - Fixed an internal README inconsistency (claimed both "9/9" and "16" tests passing) — reworded to a version-independent truthful statement.
+
+## Phase 2 — Repo hygiene
+
+### 2.1 docker-compose.yml
+- Removed the obsolete top-level `version: "3.9"` key (Compose v2 warns on it).
+- API healthcheck `interval` 10s → **30s** (less log noise; the spec noted flooding).
+- Added an anonymous volume `/app/node_modules` to the frontend service so the container's `node_modules` no longer writes root-owned files back into the host `./frontend`.
+- Verified `docker compose config` parses; rebuilt the API image successfully.
+
+### 2.2 npm vulnerabilities — DEFERRED (documented, not forced)
+- `npm audit fix` without `--force` resolves nothing; the only fix is a breaking vite 5→7/8 major upgrade. All advisories are dev-server-only (the high-severity one is Windows-only), so they don't affect the Linux demo. Rationale + post-demo remediation recorded in IMPROVEMENTS.md. recharts 2.x→v3 similarly deferred (breaking, no visual tests).
+
+### 2.3 Pin dependency versions
+- `requirements-api.txt`: pinned to the exact versions in the healthy API container (fastapi 0.139.2, uvicorn 0.51.0, pydantic 2.13.4, numpy 2.4.6, scipy 1.17.1, reportlab 5.0.0). Validated by a successful image rebuild.
+- `requirements.txt`: pinned all entries; **added scipy** (required by `defense/srad.py` and the monitor, previously missing — a real reproducibility gap). Tested subset pinned to locally-verified versions; the rest pinned to numpy-1.24-compatible releases.
+- Note: `requirements.txt` full clean-venv resolution was not re-validated (heavy torch pull; time/bandwidth) — the build-critical `requirements-api.txt` is validated by the Phase 4 rebuild.
+
+### Environment blocker
+- Pre-existing containers could not be stopped (daemon `permission denied`, no sudo). Recorded under IMPROVEMENTS.md BLOCKED. New API image built but not swapped in; functional coverage via pytest.
