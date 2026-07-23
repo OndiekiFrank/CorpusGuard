@@ -49,9 +49,9 @@ function AttackResults({ result }) {
       </div>
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
         {[['Attack vector',result.vector?.toUpperCase()],['Budget',`β=${result.budget}`],['Baseline F1',result.baseline_f1?.toFixed(3)],['Attacked F1',result.attacked_f1?.toFixed(3)],['Degradation',`${result.degradation_pct?.toFixed(1)}%`],['Log anomalies','0 — zero'],['Quarantined',`${result.documents_quarantined}/20`],['Verdict',result.risk_score>=70?'CRITICAL':'HIGH']].map(([k,v])=>(
-          <div key={k} style={{ background:'var(--bg2)', borderRadius:8, padding:'9px 12px', display:'flex', justifyContent:'space-between' }}>
-            <span style={{ fontSize:11, color:'var(--text-secondary)' }}>{k}</span>
-            <span style={{ fontSize:11, fontWeight:500, color:['Attacked F1','Degradation','Verdict'].includes(k)?'var(--red)':['Log anomalies','Quarantined'].includes(k)?'var(--green)':'var(--text)' }}>{v}</span>
+          <div key={k} style={{ background:'var(--bg2)', borderRadius:8, padding:'10px 12px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+            <span style={{ fontSize:12, color:'var(--text-secondary)' }}>{k}</span>
+            <span style={{ fontSize:14, fontWeight:600, color:['Attacked F1','Degradation','Verdict'].includes(k)?'var(--red)':['Log anomalies','Quarantined'].includes(k)?'var(--green)':'var(--text)' }}>{v}</span>
           </div>
         ))}
       </div>
@@ -118,9 +118,9 @@ function MHLTab({ mhlActive }) {
         <>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginTop:14 }}>
             {[['Detection rate','100%','green'],['False quarantine','0%','green'],['Latency p99','22.6ms','blue'],['Retraining needed','None','green']].map(([k,v,c])=>(
-              <div key={k} style={{ background:'var(--bg2)', borderRadius:8, padding:'9px 12px', display:'flex', justifyContent:'space-between' }}>
-                <span style={{ fontSize:11, color:'var(--text-secondary)' }}>{k}</span>
-                <span style={{ fontSize:11, fontWeight:500, color:`var(--${c})` }}>{v}</span>
+              <div key={k} style={{ background:'var(--bg2)', borderRadius:8, padding:'10px 12px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <span style={{ fontSize:12, color:'var(--text-secondary)' }}>{k}</span>
+                <span style={{ fontSize:14, fontWeight:600, color:`var(--${c})` }}>{v}</span>
               </div>
             ))}
           </div>

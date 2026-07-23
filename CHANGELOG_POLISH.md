@@ -83,3 +83,15 @@ Chronological record of every change made on branch `polish-pass` and the reason
 
 ### 2.7 Secret scan — CLEAN
 - No secret/key/`.env` files, no credential patterns, no hardcoded secrets, no absolute local paths in tracked files. Full result in POLISH_STATE.md §Phase 2.7.
+
+## Phase 3 — Demo readiness
+
+### 3.3 Determinism — VERIFIED (no code change needed)
+- QTPI is seeded (`QTPIConfig.seed=42`); ran `default_financial_campaign(50).run()` twice — identical F1 every time: phase F1s (0.735, 0.017, 0.012), worst degradation 98.7%, risk 98. The frontend's hardcoded simulation values match the backend exactly (β≤10→0.735/20.0, β≤50→0.017/98.2, β>50→0.012/98.7), so on-stage numbers match the screen.
+
+### 3.4 No runtime external dependency — VERIFIED
+- Static scan: no external http(s) asset URLs in `frontend/src` or `index.html` (favicon is a data URI, fonts are the system stack, React/recharts bundled locally).
+- Runtime scan via CDP `Network.enable`: loaded the dashboard and exercised scan + MHL deploy — **25 requests, 0 external** (all localhost:3000). UI renders fully with no CDN/font/remote fetch.
+
+### 3.5 Projection legibility
+- Bumped the critical value readouts in the Attack-results and MHL detail grids from 11px→**14px** (bold) with labels 11→12px, and Campaign result tiles 13→14px. Headline KPI cards were already 28px. Verified via before/after screenshots that nothing wraps or overflows. Dark theme already provides high contrast on the primary/colored values (#f0f0f5 / red / green on near-black).

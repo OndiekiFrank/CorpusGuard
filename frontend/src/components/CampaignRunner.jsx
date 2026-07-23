@@ -91,9 +91,9 @@ export default function CampaignRunner({ addLog }) {
                       ['Log anomalies', '0', 'var(--green)'],
                       ['β injected', result.budget, 'var(--text-secondary)'],
                     ].map(([l, v, c]) => (
-                      <div key={l} style={{ background: 'var(--bg3)', borderRadius: 6, padding: '6px 8px', textAlign: 'center' }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: c }}>{v}</div>
-                        <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{l}</div>
+                      <div key={l} style={{ background: 'var(--bg3)', borderRadius: 6, padding: '7px 8px', textAlign: 'center' }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: c }}>{v}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{l}</div>
                       </div>
                     ))}
                   </div>
