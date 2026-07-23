@@ -31,3 +31,8 @@ Chronological record of every change made on branch `polish-pass` and the reason
 - Updated `bank_compliance_demo.py` to print the partial count.
 - Added `tests/test_api.py::test_owasp_partial_bucket_is_reported_separately`.
 - Verified: pytest 24 passed; demo shows "3 partial | 5 not tested".
+
+### 1.4 Stray "0.75" + leading "00:00:00" activity-log entry
+- Root cause of the stray "0.75": the F1 degradation curve's `<YAxis domain={[0,1]}>` let Recharts auto-generate ticks (0, 0.25, 0.5, **0.75**, 1). Recharts also appended an off-screen text-measurement `<span>` to `document.body` carrying the last-measured string ("0.75"). Diagnosed by driving the live dashboard over the Chrome DevTools Protocol and locating both the SVG `<tspan>` and the body `<span>`.
+- Fix: set explicit `ticks={[0,0.5,1]}` on the F1 YAxis. No bare "0.75" renders, and the axis is cleaner for projection (helps Phase 3.5). Verified via CDP that zero `0.75` elements remain after a scan.
+- The leading "00:00:00" activity-log entry was a hardcoded `time:'00:00:00'` in the initial `useState` log. Now initialised with the real `new Date().toLocaleTimeString(...)` (fixed alongside the version string in the same line).

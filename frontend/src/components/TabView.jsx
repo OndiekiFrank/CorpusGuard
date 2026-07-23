@@ -40,7 +40,7 @@ function AttackResults({ result }) {
         <ResponsiveContainer width="100%" height={160}>
           <LineChart data={chartData}>
             <XAxis dataKey="b" tick={{ fontSize:10, fill:'var(--text-muted)' }} label={{ value:'β documents', position:'insideBottom', offset:-2, fontSize:10, fill:'var(--text-muted)' }} />
-            <YAxis tick={{ fontSize:10, fill:'var(--text-muted)' }} domain={[0,1]} width={28} />
+            <YAxis tick={{ fontSize:10, fill:'var(--text-muted)' }} domain={[0,1]} ticks={[0,0.5,1]} width={28} />
             <Tooltip contentStyle={{ background:'var(--bg2)', border:'1px solid var(--border)', borderRadius:8, fontSize:11 }} formatter={v=>v.toFixed(3)} labelFormatter={v=>`β=${v}`} />
             <ReferenceLine x={result.budget} stroke="var(--red)" strokeDasharray="4 2" />
             <Line type="monotone" dataKey="f1" stroke="var(--red)" strokeWidth={2} dot={false} />
