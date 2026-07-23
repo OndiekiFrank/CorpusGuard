@@ -11,12 +11,13 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from corpusguard.__version__ import __version__
 from corpusguard.attacks.qtpi import QTPIAttack, QTPIConfig
 from corpusguard.defense.mhl import MemoryHygieneLayer, MHLConfig
 from corpusguard.dashboard.report_generator import ReportData, generate_pdf_report
 from corpusguard.scanner.owasp import OWASPScorecard
 
-app = FastAPI(title="CorpusGuard API", description="RAG security testing and defense. SSRN 6734225.", version="0.1.0")
+app = FastAPI(title="CorpusGuard API", description="RAG security testing and defense. SSRN 6734225.", version=__version__)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 _scans: Dict[str, Any] = {}
@@ -75,7 +76,7 @@ def _run_scan(scan_id: str, request: ScanRequest):
 
 @app.get("/api/v1/health")
 def health():
-    return {"status": "healthy", "version": "0.1.0", "timestamp": datetime.utcnow().isoformat(), "research": "SSRN 6734225", "author": "Frankline Ondieki Ombachi"}
+    return {"status": "healthy", "version": __version__, "timestamp": datetime.utcnow().isoformat(), "research": "SSRN 6734225", "author": "Frankline Ondieki Ombachi"}
 
 @app.post("/api/v1/scan", response_model=ScanStatus)
 def create_scan(request: ScanRequest, background_tasks: BackgroundTasks):

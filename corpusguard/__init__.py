@@ -1,5 +1,5 @@
 """CorpusGuard — RAG Security Testing and Defense Framework."""
-__version__ = "0.1.0"
+from corpusguard.__version__ import __version__
 __author__ = "Frankline Ondieki Ombachi"
 __email__ = "ondiekifrank021@gmail.com"
 __research__ = "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6734225"

@@ -12,6 +12,8 @@ from rich.panel import Panel
 from rich import print as rprint
 from pathlib import Path
 
+from corpusguard.__version__ import __version__
+
 app = typer.Typer(
     name="corpusguard",
     help="RAG Security Testing and Defense Framework — SSRN 6734225",
@@ -22,7 +24,7 @@ console = Console()
 
 def _banner():
     console.print(Panel.fit(
-        "[bold blue]CorpusGuard[/bold blue] [dim]v0.1.0[/dim]\n"
+        f"[bold blue]CorpusGuard[/bold blue] [dim]v{__version__}[/dim]\n"
         "[dim]RAG Security Testing & Defense · SSRN 6734225[/dim]",
         border_style="blue",
     ))

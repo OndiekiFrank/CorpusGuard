@@ -9,7 +9,7 @@ export default function Header({ mhlActive }) {
         </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Badge color="muted">v0.2.0</Badge>
+        <Badge color="muted">v0.1.0</Badge>
         {mhlActive
           ? <Badge color="green">MHL active</Badge>
           : <Badge color="blue">API ready</Badge>

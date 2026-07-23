@@ -1,11 +1,19 @@
+import re
+from pathlib import Path
+
 from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as f:
     long_description = f.read()
 
+# Read the single source of truth for the version without importing the package
+# (which would require its runtime dependencies to be installed first).
+_version_src = Path(__file__).parent.joinpath("corpusguard", "__version__.py").read_text()
+version = re.search(r'__version__\s*=\s*"([^"]+)"', _version_src).group(1)
+
 setup(
     name="corpusguard",
-    version="0.1.0",
+    version=version,
     author="Frankline Ondieki Ombachi",
     author_email="ondiekifrank021@gmail.com",
     description="Production-ready RAG security testing and defense framework",

@@ -33,7 +33,7 @@ export default function App() {
   const [progress, setProgress] = useState(0)
   const [progressLabel, setProgressLabel] = useState('')
   const [scanResult, setScanResult] = useState(null)
-  const [logs, setLogs] = useState([{ time:'00:00:00', msg:'CorpusGuard v0.2.0 initialised. API ready at localhost:8000.' }])
+  const [logs, setLogs] = useState([{ time:new Date().toLocaleTimeString('en', { hour12:false }), msg:'CorpusGuard v0.1.0 initialised. API ready at localhost:8000.' }])
   const { download, downloading } = usePDFReport()
 
   const addLog = useCallback((msg) => {

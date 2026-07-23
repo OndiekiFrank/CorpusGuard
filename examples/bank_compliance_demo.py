@@ -29,6 +29,7 @@ from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich import print as rprint
 
+from corpusguard.__version__ import __version__
 from corpusguard.attacks.campaign import AttackCampaign, default_financial_campaign
 from corpusguard.attacks.qtpi import QTPIAttack, QTPIConfig
 from corpusguard.defense.mhl import MemoryHygieneLayer, MHLConfig
@@ -41,7 +42,7 @@ console = Console()
 
 def main():
     console.print(Panel.fit(
-        "[bold blue]CorpusGuard[/bold blue] [dim]v0.1.0[/dim]\n"
+        f"[bold blue]CorpusGuard[/bold blue] [dim]v{__version__}[/dim]\n"
         "[dim]Canadian Bank AML System Security Assessment[/dim]\n"
         "[dim]Based on SSRN 6734225 — Ondieki Ombachi, 2026[/dim]",
         border_style="blue",
