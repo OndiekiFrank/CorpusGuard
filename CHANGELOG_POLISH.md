@@ -95,3 +95,10 @@ Chronological record of every change made on branch `polish-pass` and the reason
 
 ### 3.5 Projection legibility
 - Bumped the critical value readouts in the Attack-results and MHL detail grids from 11px→**14px** (bold) with labels 11→12px, and Campaign result tiles 13→14px. Headline KPI cards were already 28px. Verified via before/after screenshots that nothing wraps or overflows. Dark theme already provides high contrast on the primary/colored values (#f0f0f5 / red / green on near-black).
+
+### 3.1 DEMO_RUNBOOK.md
+- Wrote the full runbook: cold-start sequence, six-tab click path with the exact deterministic numbers, timings, and troubleshooting for the three most likely failures.
+
+### 3.2 One-command reset
+- `scripts/demo-reset.sh` (executable, `bash -n` clean) tears down, rebuilds, relaunches, waits for the API healthcheck, and smoke-tests both ports.
+- `Makefile` with `reset`, `up`, `down`, `demo`, `test`, `build`, `logs` targets (autodetects `docker compose` vs `docker-compose`).

@@ -84,7 +84,11 @@ Per the working rules this discrepancy is recorded for review rather than resolv
 
 ## PHASE 3 — Demo readiness
 
-_(pending)_
+- **3.1 DEMO_RUNBOOK.md** — DONE. Cold-start commands, 6-tab click path with exact expected numbers, timings, and troubleshooting for the 3 most likely failures (port in use, API-unavailable fallback, UI still installing).
+- **3.2 One-command reset** — DONE. `scripts/demo-reset.sh` (down→build→up→wait-healthy→smoke-test) + `Makefile` (`make reset`, `up`, `down`, `demo`, `test`). `bash -n` clean; couldn't execute end-to-end here because the pre-existing containers are locked (see BLOCKED), but the flow is standard.
+- **3.3 Determinism** — VERIFIED. Seed=42; campaign F1 identical across runs (0.735/0.017/0.012; peak 98.7%). Frontend sim values match the backend exactly.
+- **3.4 No runtime external deps** — VERIFIED. CDP network capture during load+scan+deploy: 25 requests, **0 external**. System fonts, data-URI favicon, bundled JS.
+- **3.5 Legibility** — DONE. Critical grid value readouts bumped 11→14px bold; headline KPIs already 28px; verified no layout breakage via before/after screenshots.
 
 ## PHASE 4 — Fresh-clone verification
 
