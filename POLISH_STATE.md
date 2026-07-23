@@ -3,6 +3,12 @@
 Branch: `polish-pass` (from `main` @ a1cf57c)
 Started: 2026-07-23
 
+**STATUS: COMPLETE.** Phases 0–4 done. Fresh-clone acceptance green (docker
+healthy, `:8000`/`:3000` → 200, demo PDF, pytest 24 passed). Two items await a
+human decision (DISCREPANCY-1; SSRN link browser-check); two deferred with
+rationale (npm vite upgrade, recharts v3). One environment blocker (cannot stop
+the locked containers here). Deliverable: `MORNING_SUMMARY_2.md`.
+
 ## PHASE 0 — Preflight (baseline)
 
 | Check | Result |
