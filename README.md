@@ -1,25 +1,22 @@
 # CorpusGuard
 
-**Production-ready RAG security testing and defense framework**
+**Red-teaming and defense framework for corpus poisoning and prompt injection in RAG systems — research prototype (v0.1.0)**
 
 [![CI](https://github.com/OndiekiFrank/CorpusGuard/actions/workflows/ci.yml/badge.svg)](https://github.com/OndiekiFrank/CorpusGuard/actions)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![SSRN](https://img.shields.io/badge/Research-SSRN%206734225-blue.svg)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6734225)
-[![ACM ICAIF 2026](https://img.shields.io/badge/ACM%20ICAIF-2026%20Under%20Review-orange.svg)](https://icaif2026.org)
+[![SSRN](https://img.shields.io/badge/Preprint-SSRN%206734225-blue.svg)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6734225)
 [![ORCID](https://img.shields.io/badge/ORCID-0009--0008--3483--0025-green.svg)](https://orcid.org/0009-0008-3483-0025)
 
-> Built on published research: *Poisoning the Compliance Mind: Adversarial Memory Injection Attacks on RAG-Based AML Agents* — [SSRN 6734225](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6734225)
+> Reference implementation for the preprint *Poisoning the Compliance Mind: Adversarial Memory Injection Attacks on RAG-Based AML Agents* — [SSRN 6734225](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6734225)
 
 ---
 
 ## What CorpusGuard does
 
-CorpusGuard automatically red teams any RAG-based AI system for corpus poisoning vulnerabilities and deploys the Memory Hygiene Layer (MHL) defense to protect it.
+CorpusGuard runs adversarial document-injection attacks against a retrieval-augmented generation (RAG) pipeline, measures how much the downstream decisions degrade, and applies the Memory Hygiene Layer (MHL), a training-free ingestion-time defense. It was built to study RAG-based anti-money-laundering (AML) agents, where a poisoned retrieval corpus can silently suppress suspicious activity reports.
 
-**One command. Full security assessment. CISO-ready PDF report.**
-
-📄 **See the output without running anything:** [`docs/sample_report.pdf`](docs/sample_report.pdf) — a representative CISO assessment report.
+It produces a scored assessment and a PDF report. See [`docs/sample_report.pdf`](docs/sample_report.pdf) for an example output.
 
 ```bash
 # Option 1 — Docker Compose (full stack)
@@ -27,7 +24,7 @@ docker compose up          # older Docker: docker-compose up
 # Dashboard: http://localhost:3000
 # API:       http://localhost:8000/docs
 
-# Option 2 — Run demo directly
+# Option 2 — Run the demo directly
 python examples/bank_compliance_demo.py
 
 # Option 3 — install from source (not yet published to PyPI)
@@ -37,26 +34,54 @@ corpusguard scan --target my_rag_config.yaml
 
 ---
 
-## The attack it finds
+## Key finding from the paper
 
-An adversary injects strategically crafted documents into a RAG system's vector database through legitimate ingestion pathways. The AI agent's accuracy collapses from **91.9% to 1.4%** — with zero anomalous log signatures. The system appears fully operational while making catastrophically wrong decisions.
+In a simulated RAG-based AML agent (synthetic corpus of 10,000 documents derived from the PaySim simulator and FATF/FinCEN-style guidance), injecting **50 documents containing embedded instructions** — query-time prompt injection (QTPI) — reduced the agent's F1 on the trade-based money laundering test set from **0.919 to 0.014**. An F1 that low means the agent's decisions were systematically inverted, not merely degraded. The injected documents entered through a normal ingestion pathway and produced no anomalous entries in transaction logs.
 
-| Finding | Result |
-|---|---|
-| Baseline AML agent F1 | 0.919 |
-| After QTPI attack (β=50 docs) | **0.014 — 98.4% degradation** |
-| Log anomalies generated | **Zero** |
-| Existing framework coverage | **None** — not in NIST AI RMF, OWASP LLM Top 10, or MITRE ATLAS |
+| Attack vector | F1 at β = 50 documents | Effect |
+|---|---|---|
+| Baseline (no attack) | 0.919 | — |
+| QTPI — query-time prompt injection | **0.014** | Collapse (98.4% drop) |
+| DP — document poisoning | 0.924 | No material degradation* |
+| RRM — retrieval rank manipulation | 0.942 | No material degradation* |
+
+\*See [Limitations](#limitations): the decision component in these experiments is a keyword-weighted heuristic, which likely understates the effect of semantic attacks (DP, RRM) on a real LLM.
+
+QTPI is an instance of indirect prompt injection (OWASP LLM01; Greshake et al., 2023) applied to a compliance retrieval corpus.
 
 ---
 
-## The defense it deploys
+## The defense: Memory Hygiene Layer (MHL)
 
-| MHL Component | Function | Result |
+| Module | What it does | Result in the paper (DP attack, β = 280) |
 |---|---|---|
-| CPT — Cryptographic Provenance Tracking | SHA-256 hashing + source trust scoring | 100% detection, 0% false quarantine |
-| FCS — Factual Consistency Scoring | Cross-encoder scoring against anchor corpus | 22.6ms p99 latency on CPU |
-| SRAD — Statistical Retrieval Anomaly Detection | KS-test on 500-query sliding window | Zero-config anomaly detection |
+| CPT — Cryptographic Provenance Tracking | SHA-256 content hashing plus per-source trust scores | 100% detection of injections from low-trust sources, 0% false quarantine. **Does not detect injections arriving through trusted sources.** |
+| FCS — Factual Consistency Scoring | Cross-encoder consistency check against an anchor corpus of regulatory documents | 22.6 ms p99 latency on CPU. **False quarantine of 30.4–59.8% of clean documents depending on threshold — not yet deployable without calibration.** |
+| SRAD — Statistical Retrieval Anomaly Detection | Concentration scores and KS test over a 500-query sliding window | Content-agnostic monitoring; no detections in the DP experiment. |
+
+---
+
+## Limitations
+
+This is a research prototype. Please read these before relying on any number above.
+
+1. **No real LLM in the decision loop.** All reported experiments use a heuristic classifier that weights keyword signals in retrieved documents. Results against GPT-class or open-weight LLM backends have not yet been measured.
+2. **MHL was not evaluated against QTPI**, the attack that actually succeeded. The defense results above are for document poisoning only.
+3. **FCS false quarantine is too high** for production use at the thresholds tested.
+4. **Synthetic data.** The corpus and transactions are simulated; no real bank data was used.
+5. **Black-box adversary only.** A white-box attacker optimising documents to pass FCS is not modelled.
+6. Some values shown in the dashboard are constants reported in the paper rather than live measurements from your run. <!-- remove this line once fixed -->
+
+---
+
+## Roadmap
+
+These follow directly from peer-review feedback on the paper:
+
+- Replace the heuristic classifier with open-weight LLM backends and re-measure all three attack vectors
+- Evaluate MHL — and existing prompt-injection detectors — against QTPI, including injections written in regulatory language
+- Reduce FCS false quarantine through threshold calibration and domain-specific anchor corpora
+- Add an adaptive (white-box) attacker
 
 ---
 
@@ -71,9 +96,9 @@ docker compose up
 ```
 
 Opens:
-- **React Dashboard:** `http://localhost:3000`
+- **React dashboard:** `http://localhost:3000`
 - **FastAPI Swagger UI:** `http://localhost:8000/docs`
-- PDF report auto-saved to `./reports/`
+- PDF reports saved to `./reports/`
 
 ### CLI (install from source)
 
@@ -87,7 +112,7 @@ pip install -e .
 corpusguard scan --target config/my_rag.yaml
 corpusguard attack --vector qtpi --budget 50
 corpusguard defend --mode full
-corpusguard report --format pdf --output ./ciso_report.pdf
+corpusguard report --format pdf --output ./report.pdf
 ```
 
 ### Bank compliance demo
@@ -96,7 +121,7 @@ corpusguard report --format pdf --output ./ciso_report.pdf
 python examples/bank_compliance_demo.py
 ```
 
-Runs a complete 5-phase assessment — attack campaign, MHL defense, OWASP scorecard, real-time monitor, CISO PDF report.
+Runs a five-phase assessment on synthetic data: attack campaign, MHL defense, OWASP LLM Top 10 checklist, monitoring, and PDF report.
 
 ---
 
@@ -104,37 +129,37 @@ Runs a complete 5-phase assessment — attack campaign, MHL defense, OWASP score
 
 ```
 CorpusGuard/
-├── frontend/                    ← React + Vite professional dark UI (port 3000)
+├── frontend/                    ← React + Vite dashboard (port 3000)
 │   └── src/components/
 │       ├── TabView.jsx          ← 6 tabs: Attack, OWASP, MHL, Campaign, Monitor, Threat Intel
-│       ├── MonitorTab.jsx       ← Real-time corpus monitoring with live chart
-│       ├── CampaignRunner.jsx   ← 3-phase visual stepper
-│       └── PDFReport.jsx        ← One-click PDF download
+│       ├── MonitorTab.jsx       ← Corpus monitoring view
+│       ├── CampaignRunner.jsx   ← 3-phase attack campaign stepper
+│       └── PDFReport.jsx        ← PDF download
 ├── corpusguard/
-│   ├── api/main.py              ← FastAPI REST gateway — 7 endpoints (port 8000)
+│   ├── api/main.py              ← FastAPI REST API — 7 endpoints (port 8000)
 │   ├── attacks/
-│   │   ├── qtpi.py              ← Query-Time Prompt Injection attack
+│   │   ├── qtpi.py              ← Query-time prompt injection attack
 │   │   └── campaign.py          ← Multi-phase attack campaigns
 │   ├── defense/
-│   │   ├── mhl.py               ← Memory Hygiene Layer (main)
+│   │   ├── mhl.py               ← Memory Hygiene Layer (orchestrator)
 │   │   ├── cpt.py               ← Cryptographic Provenance Tracking
 │   │   ├── fcs.py               ← Factual Consistency Scoring
 │   │   └── srad.py              ← Statistical Retrieval Anomaly Detection
 │   ├── scanner/
-│   │   ├── owasp.py             ← OWASP LLM Top 10 compliance scorecard
-│   │   └── monitor.py           ← Real-time monitoring daemon
+│   │   ├── owasp.py             ← OWASP LLM Top 10 checklist
+│   │   └── monitor.py           ← Monitoring daemon
 │   └── dashboard/
 │       ├── app.py               ← Streamlit dashboard (alternative UI)
-│       └── report_generator.py  ← CISO-ready PDF report generator
+│       └── report_generator.py  ← PDF report generator
 ├── examples/
-│   └── bank_compliance_demo.py  ← Full end-to-end bank assessment demo
-├── tests/                       ← pytest suite passing (Python 3.9, 3.10, 3.11)
-├── docker-compose.yml           ← Full stack: API + React UI + Redis
-├── Dockerfile                   ← API container (lean runtime deps)
+│   └── bank_compliance_demo.py  ← End-to-end demo on synthetic data
+├── tests/                       ← pytest suite (Python 3.9, 3.10, 3.11)
+├── docker-compose.yml           ← API + React UI + Redis
+├── Dockerfile                   ← API container
 ├── Dockerfile.dashboard         ← Streamlit container
 └── .github/workflows/
-    ├── ci.yml                   ← GitHub Actions CI/CD
-    └── security-gate.yml        ← EU AI Act compliance gate
+    ├── ci.yml                   ← Tests and linting
+    └── security-gate.yml        ← Example: fail a build if the risk score exceeds a threshold
 ```
 
 ---
@@ -146,110 +171,76 @@ Full Swagger UI at `http://localhost:8000/docs`
 | Method | Endpoint | Description |
 |---|---|---|
 | GET | `/api/v1/health` | Health check |
-| POST | `/api/v1/scan` | Submit RAG system for scanning |
+| POST | `/api/v1/scan` | Submit a RAG configuration for scanning |
 | GET | `/api/v1/scan/{id}` | Get scan results |
-| GET | `/api/v1/owasp/{id}` | OWASP LLM Top 10 scorecard |
+| GET | `/api/v1/owasp/{id}` | OWASP LLM Top 10 checklist results |
 | GET | `/api/v1/report/{id}` | Download PDF report |
-| POST | `/api/v1/defend` | Deploy MHL defense |
+| POST | `/api/v1/defend` | Apply MHL defense |
 | GET | `/api/v1/scans` | List all scans |
 
 ---
 
-## React Dashboard — 6 Tabs
+## OWASP LLM Top 10 checks
 
-| Tab | What it shows |
-|---|---|
-| Attack results | Live F1 degradation chart, attack metrics, verdict |
-| OWASP LLM Top 10 | Full compliance scorecard with severity badges |
-| MHL defense | Module status with live pulse indicators |
-| Campaign | 3-phase visual stepper — Recon → Exploit → Persist |
-| Monitor | Real-time document feed, corpus health chart, live alerts |
-| Threat intel | Documented attack patterns with actor, target, mitigation |
+Uses the 2023 (v1.1) numbering.
 
----
-
-## OWASP LLM Top 10 Coverage
-
-| ID | Vulnerability | Status |
+| ID | Vulnerability | Status in CorpusGuard |
 |---|---|---|
-| LLM01 | Prompt Injection | **TESTED — CRITICAL** |
-| LLM03 | Training Data Poisoning | **TESTED — PARTIAL** |
-| LLM05 | Supply Chain Vulnerabilities | **TESTED — FAILED** |
-| LLM06 | Sensitive Information Disclosure | **TESTED — PARTIAL** |
-| LLM09 | Overreliance | **TESTED — PARTIAL** |
-| LLM02, 04, 07, 08, 10 | Various | Planned v0.3 |
+| LLM01 | Prompt Injection | Tested |
+| LLM03 | Training Data Poisoning (corpus-level) | Partially tested |
+| LLM05 | Supply Chain Vulnerabilities | Tested (ingestion sources) |
+| LLM06 | Sensitive Information Disclosure | Partially tested |
+| LLM09 | Overreliance | Partially tested |
+| LLM02, 04, 07, 08, 10 | — | Planned |
 
 ---
 
-## Regulatory Coverage
+## Regulatory context
 
-| Framework | CorpusGuard Mitigation |
+The paper maps the threat to existing supervisory expectations. CorpusGuard does not certify compliance with any of these; it provides evidence that may support a firm's own assessment.
+
+| Framework | Relevance |
 |---|---|
-| NIST AI RMF | First reference implementation for RAG corpus security |
-| OWASP LLM Top 10 | QTPI formalises new LLM01 sub-category |
-| MITRE ATLAS | New corpus-level attack pattern documented |
-| FINRA Rule 3110 | CPT provides cryptographic audit trail |
-| FinCEN 2024 | CPT + SRAD provide auditable controls |
-| FATF 2025 | CPT detects source-level anomalies |
-| EU AI Act Aug 2026 | CI/CD security gate — automated red-teaming built-in |
-
----
-
-## CI/CD Security Gate
-
-```yaml
-- name: CorpusGuard Security Gate
-  uses: OndiekiFrank/corpusguard-action@v1
-  with:
-    target: ${{ secrets.RAG_ENDPOINT }}
-    fail-on-risk-score: 70
-```
-
-Blocks deployment if RAG system scores above 70/100. EU AI Act compliant.
-
----
-
-## Test Results
-
-```
-pytest — attack, defense, API, CLI, and version-consistency tests
-CI matrix: Python 3.9 / 3.10 / 3.11 (.github/workflows/ci.yml)
-```
+| FINRA 2026 oversight report (AI agents) | Monitoring and audit trail of agent inputs — CPT logs every ingestion decision |
+| FCA statements on AI traceability | Links each decision to its retrieved sources and their provenance |
+| FinCEN 2024 proposed AML/CFT rule | Evidence that an AI-assisted system is tested under adversarial conditions |
+| FATF 2025 Horizon Scan | Criminal use of AI-generated documents to evade detection |
+| EU AI Act | Supports robustness testing; does not by itself establish conformity |
 
 ---
 
 ## Research
 
 > **Poisoning the Compliance Mind: Adversarial Memory Injection Attacks on RAG-Based AML Agents**
-> Frankline Ondieki Ombachi · SSRN 6734225 · 2026
-> Under peer review — ACM ICAIF 2026, Milan, Italy
-> BSides Toronto 2026 talk submitted — October 3–4
+> Frankline Ondieki Ombachi · SSRN preprint 6734225 · 2026
+> Submitted to ACM ICAIF 2026 (not accepted); a revised version addressing reviewer feedback is in preparation.
+> Presented at BSides Toronto 2026, October 3–4. <!-- keep ONLY if you actually gave the talk; otherwise delete this line -->
 
 ```bibtex
-@article{ondieki2026poisoning,
-  title  = {Poisoning the Compliance Mind: Adversarial Memory Injection Attacks on RAG-Based AML Agents},
-  author = {Ondieki Ombachi, Frankline},
-  year   = {2026},
-  url    = {https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6734225},
-  note   = {Under peer review at ACM ICAIF 2026}
+@misc{ondieki2026poisoning,
+  title        = {Poisoning the Compliance Mind: Adversarial Memory Injection Attacks on RAG-Based AML Agents},
+  author       = {Ondieki Ombachi, Frankline},
+  year         = {2026},
+  howpublished = {SSRN preprint 6734225},
+  url          = {https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6734225}
 }
 ```
 
 ---
 
-## Disclaimer
+## Responsible use
 
-For academic reproducibility and defensive security research only. Do not use against systems you do not own or have explicit permission to test.
+For defensive security research and reproducibility only. Do not run attacks against systems you do not own or are not explicitly authorised to test.
 
 ---
 
 ## Author
 
-**Frankline Ondieki Ombachi** — AI Security Researcher · Nairobi, Kenya
+**Frankline Ondieki Ombachi** — AI security researcher · Nairobi, Kenya
 
 📧 ondiekifrank021@gmail.com
 🔗 [LinkedIn](https://www.linkedin.com/in/frankline-ondieki-39a61828a/)
 📄 [SSRN 6734225](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6734225)
 🔬 [ORCID: 0009-0008-3483-0025](https://orcid.org/0009-0008-3483-0025)
 
-*If your organisation runs RAG-based AI systems — run CorpusGuard before someone else does.*
+Feedback, issues and collaboration on LLM-backend evaluation are welcome.
