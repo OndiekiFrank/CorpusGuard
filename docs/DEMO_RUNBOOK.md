@@ -140,5 +140,5 @@ wedged, `docker compose restart frontend`.
 - **Published (SSRN 6734225 / README):** F1 0.014 / **98.4%** at β=50.
 Both describe the same degradation curve; the simulator's exponential fit sits
 just above the 0.014 floor at exactly β=50. If asked, cite the paper figure and
-note the tool reproduces the same collapse. (Tracked in POLISH_STATE.md as
+note the tool reproduces the same collapse. (Tracked in internal notes as
 DISCREPANCY-1 for the author to reconcile.)

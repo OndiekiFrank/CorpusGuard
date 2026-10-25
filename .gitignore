@@ -221,3 +221,5 @@ reports/*.pdf
 __pycache__/
 *.egg-info/
 .vite/
+*.pyc
+docs/dev-notes/

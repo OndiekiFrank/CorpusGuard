@@ -16,7 +16,7 @@ setup(
     version=version,
     author="Frankline Ondieki Ombachi",
     author_email="ondiekifrank021@gmail.com",
-    description="Production-ready RAG security testing and defense framework",
+    description="Red-teaming and defense framework for corpus poisoning and prompt injection in RAG systems (research prototype)",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/OndiekiFrank/CorpusGuard",

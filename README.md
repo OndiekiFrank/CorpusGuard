@@ -71,6 +71,7 @@ This is a research prototype. Please read these before relying on any number abo
 4. **Synthetic data.** The corpus and transactions are simulated; no real bank data was used.
 5. **Black-box adversary only.** A white-box attacker optimising documents to pass FCS is not modelled.
 6. Some values shown in the dashboard are constants reported in the paper rather than live measurements from your run. <!-- remove this line once fixed -->
+7. **Reproduction gap.** Running this tool at β = 50 yields F1 0.017 (98.2% drop) rather than the 0.014 (98.4%) reported in the paper, which averages five runs. Both show the same collapse; the exact figure varies with random seed.
 
 ---
 

@@ -24,7 +24,7 @@ preferred-citation:
   title: "Poisoning the Compliance Mind: Adversarial Memory Injection Attacks on RAG-Based AML Agents"
   year: 2026
   url: "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6734225"
-  notes: "Under peer review at ACM ICAIF 2026."
+  notes: "SSRN preprint 6734225. Submitted to ACM ICAIF 2026 (not accepted); revised version in preparation."
   authors:
     - family-names: "Ondieki Ombachi"
       given-names: "Frankline"
